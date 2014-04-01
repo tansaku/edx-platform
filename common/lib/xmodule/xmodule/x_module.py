@@ -27,9 +27,12 @@ from xmodule.modulestore import Location
 from xmodule.modulestore.exceptions import ItemNotFoundError, InsufficientSpecificationError, InvalidLocationError
 from xmodule.modulestore.locator import BlockUsageLocator
 from xmodule.exceptions import UndefinedContext
+from dogapi import dog_stats_api
 
 
 log = logging.getLogger(__name__)
+
+XMODULE_METRIC_NAME = 'edxapp.xmodule'
 
 
 def dummy_track(_event_type, _event):
@@ -1217,6 +1220,26 @@ class ModuleSystem(ConfigurableFragmentWrapper, Runtime):  # pylint: disable=abs
 
     def __str__(self):
         return str(self.__dict__)
+
+    def render(self, block, view_name, context=None):
+        try:
+            rendered_block = super(ModuleSystem, self).render(block, view_name, context=context)
+            dog_stats_api.increment(XMODULE_METRIC_NAME, tags=[
+                u'action:student_view',
+                u'action_status:success',
+                u'course_id:{}'.format(self.course_id),
+                u'block_type:{}'.format(block.scope_ids.block_type)
+            ])
+            return rendered_block
+
+        except:
+            dog_stats_api.increment(XMODULE_METRIC_NAME, tags=[
+                u'action:student_view',
+                u'action_status:failure',
+                u'course_id:{}'.format(self.course_id),
+                u'block_type:{}'.format(block.scope_ids.block_type)
+            ])
+
 
     @property
     def ajax_url(self):
