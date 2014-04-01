@@ -14,6 +14,7 @@ NPM_REGISTRY = "http://registry.npmjs.org/"
 PYTHON_REQ_FILES = [
     'requirements/edx/pre.txt',
     'requirements/edx/base.txt',
+    'requirements/edx/repo.txt',
     'requirements/edx/post.txt'
 ]
 
