@@ -183,7 +183,7 @@ function (Sjson, AsyncProcess) {
         },
 
         /**
-        * @desc Fetch the caption file specified by the user. Upn successful
+        * @desc Fetch the caption file specified by the user. Upon successful
         *     receival of the file, the captions will be rendered.
         *
         * @type {function}
