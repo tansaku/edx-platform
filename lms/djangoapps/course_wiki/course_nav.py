@@ -10,6 +10,7 @@ from wiki.models import reverse as wiki_reverse
 from courseware.access import has_access
 from courseware.courses import get_course_with_access
 from student.models import CourseEnrollment
+from xmodule.modulestore.keys import CourseKey
 
 
 IN_COURSE_WIKI_REGEX = r'/courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/wiki/(?P<wiki_path>.*|)$'
@@ -65,7 +66,7 @@ class Middleware(object):
 
         course_match = IN_COURSE_WIKI_COMPILED_REGEX.match(destination)
         if course_match:
-            course_id = course_match.group('course_id')
+            course_id = CourseKey.from_string(course_match.group('course_id'))
 
             # Authorization Check
             # Let's see if user is enrolled or the course allows for public access
@@ -76,7 +77,7 @@ class Middleware(object):
                 if not (is_enrolled or is_staff):
                     raise PermissionDenied()
 
-            prepend_string = '/courses/' + course_id
+            prepend_string = '/courses/' + course_id.to_deprecated_string()
             wiki_reverse._transform_url = lambda url: prepend_string + url
 
         return None
@@ -114,12 +115,12 @@ class Middleware(object):
             # We are going to the wiki. Check if we came from a course
             course_match = re.match(r'/courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/.*', referer_path)
             if course_match:
-                course_id = course_match.group('course_id')
+                course_id = CourseKey.from_string(course_match.group('course_id'))
 
                 # See if we are able to view the course. If we are, redirect to it
                 try:
                     course = get_course_with_access(user, 'load', course_id)
-                    return "/courses/" + course.id + "/wiki/" + path_match.group('wiki_path')
+                    return "/courses/" + course.id.to_deprecated_string() + "/wiki/" + path_match.group('wiki_path')
                 except Http404:
                     # Even though we came from the course, we can't see it. So don't worry about it.
                     pass
@@ -129,7 +130,7 @@ class Middleware(object):
             # don't have permission to see the course!
             course_match = re.match(IN_COURSE_WIKI_REGEX, destination)
             if course_match:
-                course_id = course_match.group('course_id')
+                course_id = CourseKey.from_string(course_match.group('course_id'))
                 # See if we are able to view the course. If we aren't, redirect to regular wiki
                 try:
                     course = get_course_with_access(user, 'load', course_id)
@@ -153,7 +154,7 @@ def context_processor(request):
 
     match = re.match(IN_COURSE_WIKI_REGEX, request.path)
     if match:
-        course_id = match.group('course_id')
+        course_id = CourseKey.from_string(match.group('course_id'))
 
         try:
             course = get_course_with_access(request.user, 'load', course_id)
