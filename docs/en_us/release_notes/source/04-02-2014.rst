@@ -1,0 +1,65 @@
+###################################
+April 2, 2014
+###################################
+
+The following information reflects what is new in the edX Platform as of April
+2, 2014.  See previous pages in this document for a history of changes.
+
+**************************
+edX Documentation
+**************************
+
+You can access the public edX `roadmap <https://edx-
+wiki.atlassian.net/wiki/display/OPENPROD/Open+EdX+Public+Product+Roadmap>`_ for
+details about the currently planned product direction.
+
+The following documentation is available:
+
+* `Building and Running an edX Course.
+  <http://edx.readthedocs.org/projects/ca/en/latest/>`_ You can also download
+  the guide as a PDF from the edX Studio user interface.
+
+  Recent changes include:
+
+  * Expanded the `Grade and Answer Data <http://edx.readthedocs.org/projects/ca/
+    en/latest/running_course/course_grades.html>`_ chapter to include the new
+    `Student Answer Distribution <http://edx.readthedocs.org/projects/ca/en/late
+    st/running_course/course_grades.html#review-answers>`_ section.
+
+
+* `edX Data Documentation
+  <http://edx.readthedocs.org/projects/devdata/en/latest/>`_
+
+  Recent changes include:
+
+  *  Added the `Data Czar/Data Team Selection and Responsibilities <http://edx.r
+     eadthedocs.org/projects/devdata/en/latest/internal_data_formats/data_czar.h
+     tml>`_ chapter.
+
+* `edX Platform Developer Documentation
+  <http://edx.readthedocs.org/projects/devdata/en/latest/>`_
+
+  Recent changes include:
+
+  *  Added the `Custom JavaScript Display and Grading <http://edx.readthedocs.or
+     g/projects/userdocs/en/latest/extending_platform/javascript.html>`_
+     chapter.
+
+
+
+*************
+edX Studio
+*************
+
+* You can use a new IFrame template, available in the options when you create a
+  new HTML component. An IFrame allows you to integrate ungraded exercises and
+  tools from any Internet site into the body of your course. The IFrame appears
+  inside an HTML component, and the exercise or tool appears inside the IFrame.
+  (BLD-678)
+
+* You can now upload video transcripts for multiple languages. In the Video
+  editor, open the **Advanced** tab. In the **Transcript Translations** section,
+  select a language, then click **Upload** to select the transcript file from
+  your computer.  Click **Add** and repeat this process for additional
+  languages.
+
