@@ -19,6 +19,7 @@ from bulk_email.models import CourseAuthorization
 from bulk_email.forms import CourseAuthorizationAdminForm
 from xmodule.modulestore.locations import SlashSeparatedCourseKey
 from xmodule.modulestore.keys import CourseKey
+from opaque_keys import InvalidKeyError
 
 
 @override_settings(MODULESTORE=TEST_DATA_MONGO_MODULESTORE)
@@ -79,7 +80,7 @@ class CourseAuthorizationFormTest(ModuleStoreTestCase):
     @patch.dict(settings.FEATURES, {'ENABLE_INSTRUCTOR_EMAIL': True, 'REQUIRE_COURSE_EMAIL_AUTH': True})
     def test_form_typo(self):
         # Munge course id
-        bad_id = SlashSeparatedCourseKey(u'Broken{}'.format(self.course.id.org), None, self.course.id.run + '_typo')
+        bad_id = SlashSeparatedCourseKey(u'Broken{}'.format(self.course.id.org), '', self.course.id.run + '_typo')
 
         form_data = {'course_id': bad_id.to_deprecated_string(), 'email_enabled': True}
         form = CourseAuthorizationAdminForm(data=form_data)
@@ -97,15 +98,13 @@ class CourseAuthorizationFormTest(ModuleStoreTestCase):
     @patch.dict(settings.FEATURES, {'ENABLE_INSTRUCTOR_EMAIL': True, 'REQUIRE_COURSE_EMAIL_AUTH': True})
     def test_course_name_only(self):
         # Munge course id - common
-        bad_id = SlashSeparatedCourseKey(u'Broken{}'.format(self.course.id.org), None, self.course.id.run)
-
-        form_data = {'course_id': bad_id.to_deprecated_string(), 'email_enabled': True}
+        form_data = {'course_id': self.course.id.run, 'email_enabled': True}
         form = CourseAuthorizationAdminForm(data=form_data)
         # Validation shouldn't work
         self.assertFalse(form.is_valid())
 
         error_msg = form._errors['course_id'][0]
-        self.assertIn(u'--- Entered course id was: "{0}". '.format(bad_id), error_msg)
+        self.assertIn(u'--- Entered course id was: "{0}". '.format(self.course.id.run), error_msg)
         self.assertIn(u'Please recheck that you have supplied a course id in the format: ORG/COURSE/RUN', error_msg)
 
         with self.assertRaisesRegexp(ValueError, "The CourseAuthorization could not be created because the data didn't validate."):
@@ -122,13 +121,13 @@ class CourseAuthorizationXMLFormTest(ModuleStoreTestCase):
         # Assert this is an XML course
         self.assertEqual(modulestore().get_modulestore_type(course_id), XML_MODULESTORE_TYPE)
 
-        form_data = {'course_id': course_id, 'email_enabled': True}
+        form_data = {'course_id': course_id.to_deprecated_string(), 'email_enabled': True}
         form = CourseAuthorizationAdminForm(data=form_data)
         # Validation shouldn't work
         self.assertFalse(form.is_valid())
 
         msg = u"Course Email feature is only available for courses authored in Studio. "
-        msg += u'"{0}" appears to be an XML backed course.'.format(course_id)
+        msg += u'"{0}" appears to be an XML backed course.'.format(course_id.to_deprecated_string())
         self.assertEquals(msg, form._errors['course_id'][0])  # pylint: disable=protected-access
 
         with self.assertRaisesRegexp(ValueError, "The CourseAuthorization could not be created because the data didn't validate."):
